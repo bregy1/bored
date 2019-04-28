@@ -1,0 +1,108 @@
+
+
+- UI is generally very simple. So no need to waste time on configuration for itt.
+- Like this, client is setup and ui can directly be created when needed (redux included ofc. )
+
+Server:
+- Focus is on serversiide for this application.
+- Technical, Client selects filters and gets activites, Login included
+
+
+## Final result:
+    - User can run app.
+    - It shows directly the filter selection. 
+    Filters include everything, say, persons, locations, prefered staff etc., 
+    - There exist filter profile, but no need.
+    - If wanted, user can login, using icon on top right. So just by name and pw. No other data pls.
+    - When logged in,
+        - an icon for profiles is displayed, a profile is just a filters collection
+        - In the profile selection, theres a history of earalier selections.
+        -(*) When selecting filters with values(not just checkboxes), should always show earlier made searches. this
+        is a combination of all values for profile + all values found on native device. 
+        - searches made added ofc to history.
+    (*)MORE About searches :
+        - Search made, is shown on top of side, can use button for addToFavorites
+        - Generally haave history AND favorite list, no more. Better have just 2 tabs or aa checkboxe
+        for showing what type of searches wanna have.
+    
+
+WHAT I DO NOW:
+    - design api
+        - Searach requests !important
+        - Login / register
+        - 
+    - 
+
+API:
+
+interface Activity {
+    titel: string
+    text: string
+    img: string | ?
+    location: string | ?
+    start: IsoDateString 
+    end: IsoDateString
+    link: string
+    ageResriction: number | 0
+}
+
+interface Filters {
+    locations: Array<string | number[]>
+    radius: number
+    dates: IsoString[]
+    forKids?: boolean | false
+}
+
+interface Profile {
+    favorites: Filters[]
+    name: string
+
+}
+
+    @Use for both, login and register.
+    get /auth { name: string, pwHash: string, register: boolean } 
+    
+    @Look for activities. Client just sends the user selected data.
+    @client in general just is responsible for displaying activities and let user select fitlers.
+
+    get /search {   
+        ...Filters
+    }: Activity[]
+
+
+    @returns profile list matching for user bearer token. So basically empty 
+    @ for when no token matches or not given !. USeful so can always fetch and display.
+    @ Will simply display NO profiles found on screen..
+    get /profile/:scope {
+        headers: { Authorization: Bearer: string }
+    }: Profile[]
+
+
+    @stores a profile to favorites matching to bearer totken.
+    @ if no found, does nothing but returns errormessagaea, 
+    @ messaage cana direcly be displayed on screen. Can use language parameter later for setting lang.
+    @if already added, moves it up in list. Useful for having some kind 
+    @of sorting logic, so last used will be more present on top !! 
+    post /profile/:scope {
+        headers: { Authorization: Bearer: string }
+        profile: Profile
+    }: { message: string }
+
+
+    @ removes profile from giiven scope
+    @ scope can be favorites or history.
+    @ History is a special scope where authtoken will not be taken into acc.
+    delete /profile/:scope {
+        headers: { Authorization: Bearer: string }
+        profile: Profile
+    }: { message: string }
+
+
+// For calculating coordinates and selecting activities:
+- A coordinate can be entered by user by its name. So first thing  the server dooes
+is to map it to it's exact geolocatioin. 
+- So basically server requests gmaps with name and then receives geoloaction for it.
+- It will then add radius to the location corner. 
+- Then activities fill be searched, Need an algorithm OR gmaps service FOR 
+checking if a given acttivity is in that location. 
+-  

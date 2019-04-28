@@ -1,5 +1,5 @@
 const path = require('path')
-var LiveReloadPlugin = require('webpack-livereload-plugin');
+var LiveReloadPlugin = require('webpack-livereload-plugin')
 
 module.exports = {
 	entry: './src/main.tsx',
